@@ -17,7 +17,7 @@ perf_test:
 
 # Génère le rapport de couverture (sur les tests unitaires/intégration)
 coverage:
-	PYTHONPATH=. coverage run -m pytest -m "not performance"
+	PYTHONPATH=. coverage run -m pytest
 	coverage report -m
 	coverage html
 

@@ -17,8 +17,7 @@ PSM_URL = os.environ.get("POINT_SET_MANAGER_URL", "http://localhost:8000")
 
 @app.route("/triangulation/<point_set_id>", methods=["GET"])
 def get_triangulation(point_set_id):
-    """
-    Calcule la triangulation pour un ID de PointSet donné.
+    """Réalise la triangulation pour un ID de PointSet donné.
 
     Workflow :
         1. Valide l'ID du PointSet (doit être un UUID valide).
@@ -34,6 +33,7 @@ def get_triangulation(point_set_id):
     Returns:
         Réponse binaire (application/octet-stream) en cas de succès (200).
         Réponse d'erreur JSON en cas d'échec (400, 404, 500, 503).
+
     """
     # Validation du format UUID
     try:
@@ -82,7 +82,10 @@ def get_triangulation(point_set_id):
                 jsonify(
                     {
                         "code": "POINTSET_MANAGER_ERROR",
-                        "message": f"PointSetManager a retourné le status {response.status_code}",
+                        "message": (
+                            "PointSetManager a retourné le status "
+                            f"{response.status_code}"
+                        ),
                     }
                 ),
                 503,
@@ -95,7 +98,9 @@ def get_triangulation(point_set_id):
             jsonify(
                 {
                     "code": "SERVICE_UNAVAILABLE",
-                    "message": f"Échec de communication avec PointSetManager : {str(e)}",
+                    "message": (
+                        f"Échec de communication avec PointSetManager : {str(e)}"
+                    ),
                 }
             ),
             503,
@@ -109,7 +114,9 @@ def get_triangulation(point_set_id):
             jsonify(
                 {
                     "code": "INVALID_POINTSET",
-                    "message": f"Échec du parsing des données binaires du PointSet : {str(e)}",
+                    "message": (
+                        f"Échec du parsing des données binaires du PointSet : {str(e)}"
+                    ),
                 }
             ),
             500,
@@ -137,7 +144,10 @@ def get_triangulation(point_set_id):
             jsonify(
                 {
                     "code": "ENCODING_FAILED",
-                    "message": f"Échec de l'encodage du résultat de triangulation : {str(e)}",
+                    "message": (
+                        "Échec de l'encodage du résultat de triangulation : "
+                        f"{str(e)}"
+                    ),
                 }
             ),
             500,
@@ -147,5 +157,5 @@ def get_triangulation(point_set_id):
     return Response(result_binary, mimetype="application/octet-stream")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     app.run(debug=True)

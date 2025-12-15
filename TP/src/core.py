@@ -1,10 +1,10 @@
 """Implémentation de l'algorithme de triangulation."""
 
 
-
-def triangulate_pointset(points: list[tuple[float, float]]) -> list[tuple[int, int, int]]:
-    """
-    Réalise la triangulation de Delaunay sur un ensemble de points 2D.
+def triangulate_pointset(
+    points: list[tuple[float, float]],
+) -> list[tuple[int, int, int]]:
+    """Réalise la triangulation de Delaunay sur un ensemble de points 2D.
 
     Utilise l'algorithme incrémental de Bowyer-Watson pour la triangulation de Delaunay.
     Gère les cas limites comme les points colinéaires et les doublons.
@@ -17,6 +17,7 @@ def triangulate_pointset(points: list[tuple[float, float]]) -> list[tuple[int, i
 
     Raises:
         ValueError: S'il y a des points dupliqués ou moins de 3 points.
+
     """
     if len(points) < 3:
         return []
@@ -42,26 +43,28 @@ def triangulate_pointset(points: list[tuple[float, float]]) -> list[tuple[int, i
     # Réalisation de la triangulation de Delaunay
     triangles = _delaunay_triangulation(unique_points)
 
-    # Remapping des indices vers la liste de points originale si des doublons ont été supprimés
+    # Remapping des indices vers la liste de points originale
+    # si des doublons ont été supprimés
     if len(unique_points) < len(points):
         index_map = {i: original_indices[i] for i in range(len(unique_points))}
-        triangles = [(index_map[a], index_map[b], index_map[c]) for a, b, c in triangles]
+        triangles = [
+            (index_map[a], index_map[b], index_map[c]) for a, b, c in triangles
+        ]
 
     return triangles
 
 
 def _are_collinear(points: list[tuple[float, float]]) -> bool:
-    """
-    Vérifie si tous les points sont colinéaires.
+    """Vérifie si tous les points sont colinéaires.
 
     Args:
         points: Liste de points à vérifier.
 
     Returns:
         True si tous les points sont colinéaires, False sinon.
+
     """
-    if len(points) < 3:
-        return True
+    # Note : La vérification len(points) < 3 est faite par l'appelant.
 
     # Utilisation du produit vectoriel pour vérifier la colinéarité
     x0, y0 = points[0]
@@ -76,15 +79,17 @@ def _are_collinear(points: list[tuple[float, float]]) -> bool:
     return True
 
 
-def _delaunay_triangulation(points: list[tuple[float, float]]) -> list[tuple[int, int, int]]:
-    """
-    Réalise la triangulation de Delaunay en utilisant l'algorithme de Bowyer-Watson.
+def _delaunay_triangulation(
+    points: list[tuple[float, float]],
+) -> list[tuple[int, int, int]]:
+    """Réalise la triangulation de Delaunay (algorithme de Bowyer-Watson).
 
     Args:
         points: Liste de points uniques.
 
     Returns:
         Liste de triangles sous forme de tuples d'indices.
+
     """
     # Création d'un super-triangle qui contient tous les points
     min_x = min(p[0] for p in points)
@@ -128,7 +133,10 @@ def _delaunay_triangulation(points: list[tuple[float, float]]) -> list[tuple[int
                 for other_tri in bad_triangles:
                     if other_tri == tri:
                         continue
-                    if edge in _get_edges(other_tri) or (edge[1], edge[0]) in _get_edges(other_tri):
+                    if (
+                        edge in _get_edges(other_tri)
+                        or (edge[1], edge[0]) in _get_edges(other_tri)
+                    ):
                         is_shared = True
                         break
 
@@ -157,8 +165,7 @@ def _in_circumcircle(
     triangle: tuple[int, int, int],
     all_points: list[tuple[float, float]],
 ) -> bool:
-    """
-    Vérifie si un point est à l'intérieur du cercle circonscrit d'un triangle.
+    """Vérifie si un point est à l'intérieur du cercle circonscrit d'un triangle.
 
     Args:
         point: Point à vérifier.
@@ -167,6 +174,7 @@ def _in_circumcircle(
 
     Returns:
         True si le point est à l'intérieur du cercle circonscrit, False sinon.
+
     """
     ax, ay = all_points[triangle[0]]
     bx, by = all_points[triangle[1]]
@@ -179,8 +187,16 @@ def _in_circumcircle(
     if abs(d) < 1e-10:  # Triangle dégénéré
         return False
 
-    ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
-    uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d
+    ux = (
+        (ax * ax + ay * ay) * (by - cy)
+        + (bx * bx + by * by) * (cy - ay)
+        + (cx * cx + cy * cy) * (ay - by)
+    ) / d
+    uy = (
+        (ax * ax + ay * ay) * (cx - bx)
+        + (bx * bx + by * by) * (ax - cx)
+        + (cx * cx + cy * cy) * (bx - ax)
+    ) / d
 
     radius_sq = (ax - ux) ** 2 + (ay - uy) ** 2
     dist_sq = (px - ux) ** 2 + (py - uy) ** 2
@@ -189,14 +205,14 @@ def _in_circumcircle(
 
 
 def _get_edges(triangle: tuple[int, int, int]) -> list[tuple[int, int]]:
-    """
-    Récupère les trois arêtes d'un triangle.
+    """Récupère les trois arêtes d'un triangle.
 
     Args:
         triangle: Triangle sous forme de tuple de trois indices.
 
     Returns:
         Liste d'arêtes sous forme de tuples (index1, index2).
+
     """
     a, b, c = triangle
     return [(a, b), (b, c), (c, a)]

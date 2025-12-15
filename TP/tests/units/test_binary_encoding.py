@@ -1,3 +1,5 @@
+"""Tests unitaires pour les fonctions d'encodage/décodage binaire."""
+
 import struct
 
 import pytest
@@ -6,31 +8,44 @@ from src.binary_utils import pointset_from_binary, triangles_to_binary
 
 
 def test_read_pointset_nominal():
+    """Teste la lecture d'un PointSet binaire valide."""
     # Création manuelle d'un binaire valide : 2 points (0,0) et (1,1)
     count = 2
     p1 = (0.0, 0.0)
     p2 = (1.0, 1.0)
-    data = struct.pack('<L', count) + struct.pack('<ffff', p1[0], p1[1], p2[0], p2[1])
+    data = struct.pack("<L", count) + struct.pack("<ffff", p1[0], p1[1], p2[0], p2[1])
 
-    # Appel de la fonction (devrait échouer car NotImplemented)
     result = pointset_from_binary(data)
 
     assert len(result) == 2
     assert result[0] == p1
     assert result[1] == p2
 
+
 def test_read_pointset_empty():
-    data = struct.pack('<L', 0)
+    """Teste la lecture d'un PointSet vide."""
+    data = struct.pack("<L", 0)
     result = pointset_from_binary(data)
     assert result == []
 
+
 def test_read_pointset_invalid_size():
+    """Teste la lecture d'un binaire tronqué (lève ValueError)."""
     # Données tronquées (manque un bout de coordonnée)
-    data = struct.pack('<L', 1) + struct.pack('<f', 0.0)
-    with pytest.raises(ValueError): # Ou struct.error
+    data = struct.pack("<L", 1) + struct.pack("<f", 0.0)
+    with pytest.raises(ValueError):  # Ou struct.error
         pointset_from_binary(data)
 
+
+def test_read_pointset_too_short():
+    """Teste la lecture d'un binaire qui n'a même pas la taille du header."""
+    data = b"\x00\x00\x00"  # 3 bytes, il en faut 4 pour le count
+    with pytest.raises(ValueError):
+        pointset_from_binary(data)
+
+
 def test_write_triangles_nominal():
+    """Teste l'écriture binaire d'une structure Triangles."""
     points = [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0)]
     triangles = [(0, 1, 2)]
 
@@ -41,3 +56,13 @@ def test_write_triangles_nominal():
     # Triangle part: 4 (nb tri) + 1*12 (indices) = 16 bytes
     # Total = 44 bytes
     assert len(binary_data) == 44
+
+
+def test_write_triangles_invalid_index():
+    """Teste l'écriture binaire avec un index de triangle hors limite."""
+    points = [(0.0, 0.0), (1.0, 1.0)]  # 2 points
+    # Index 2 est invalide (seulement 0 et 1 existent)
+    triangles = [(0, 1, 2)]
+
+    with pytest.raises(ValueError):
+        triangles_to_binary(points, triangles)

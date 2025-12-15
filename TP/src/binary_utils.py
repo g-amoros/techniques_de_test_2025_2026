@@ -1,11 +1,10 @@
-"""Utilitaires d'encodage et décodage binaire pour les structures PointSet et Triangles."""
+"""Utilitaires d'encodage et décodage binaire pour PointSet et Triangles."""
 
 import struct
 
 
 def pointset_from_binary(data: bytes) -> list[tuple[float, float]]:
-    """
-    Convertit un blob binaire (PointSet) en liste de tuples (x, y).
+    """Convertit un blob binaire (PointSet) en liste de tuples (x, y).
 
     Format binaire attendu :
         - 4 bytes (unsigned long) : Nombre de points (N)
@@ -21,6 +20,7 @@ def pointset_from_binary(data: bytes) -> list[tuple[float, float]]:
 
     Raises:
         ValueError: Si les données binaires sont malformées ou tronquées.
+
     """
     if len(data) < 4:
         raise ValueError("Données binaires trop courtes : nombre de points manquant")
@@ -39,9 +39,8 @@ def pointset_from_binary(data: bytes) -> list[tuple[float, float]]:
     offset = 4
 
     for _ in range(count):
-        if offset + 8 > len(data):
-            raise ValueError("Données de point tronquées")
-
+        # La vérification de taille est déjà faite par expected_size,
+        # on peut lire directement en toute sécurité.
         x, y = struct.unpack("<ff", data[offset : offset + 8])
         points.append((x, y))
         offset += 8
@@ -52,8 +51,7 @@ def pointset_from_binary(data: bytes) -> list[tuple[float, float]]:
 def triangles_to_binary(
     points: list[tuple[float, float]], triangles: list[tuple[int, int, int]]
 ) -> bytes:
-    """
-    Convertit les points et triangles en représentation binaire.
+    """Convertit les points et triangles en représentation binaire.
 
     Format binaire :
         Partie 1 - Sommets (format PointSet) :
@@ -73,6 +71,7 @@ def triangles_to_binary(
 
     Raises:
         ValueError: Si les indices des triangles sont hors limites.
+
     """
     # Validation des indices des triangles
     num_points = len(points)
