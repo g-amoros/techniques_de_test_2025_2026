@@ -1,14 +1,14 @@
-import pytest
 from src.core import triangulate_pointset
+
 
 def test_triangulation_simple_square():
     # Carré avec 4 points
     points = [(0,0), (1,0), (1,1), (0,1)]
     result = triangulate_pointset(points)
-    
+
     # On attend 2 triangles pour un carré
     assert len(result) == 2
-    
+
     # Vérification que les indices sont valides
     for t in result:
         assert len(t) == 3
@@ -28,7 +28,7 @@ def test_triangulation_duplicates():
     result = triangulate_pointset(points)
     # Avec seulement 2 points uniques, pas de triangulation possible
     assert len(result) == 0
-    
+
 def test_triangulation_duplicates_with_valid_triangle():
     # Points dupliqués mais avec assez de points uniques pour une triangulation
     points = [(0,0), (0,0), (1,0), (1,0), (0.5,1)]

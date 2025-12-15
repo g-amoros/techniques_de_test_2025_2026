@@ -1,6 +1,5 @@
 """Implémentation de l'algorithme de triangulation."""
 
-import math
 
 
 def triangulate_pointset(points: list[tuple[float, float]]) -> list[tuple[int, int, int]]:
