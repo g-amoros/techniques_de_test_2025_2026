@@ -23,7 +23,19 @@ def test_triangulation_collinear():
     assert len(result) == 0
 
 def test_triangulation_duplicates():
-    # Points dupliqués
+    # Points dupliqués - notre implémentation les supprime automatiquement
     points = [(0,0), (0,0), (1,1)]
-    with pytest.raises(Exception): # Ou assertion sur le résultat nettoyé
-        triangulate_pointset(points)
+    result = triangulate_pointset(points)
+    # Avec seulement 2 points uniques, pas de triangulation possible
+    assert len(result) == 0
+    
+def test_triangulation_duplicates_with_valid_triangle():
+    # Points dupliqués mais avec assez de points uniques pour une triangulation
+    points = [(0,0), (0,0), (1,0), (1,0), (0.5,1)]
+    result = triangulate_pointset(points)
+    # Devrait avoir 1 triangle avec les 3 points uniques
+    assert len(result) == 1
+    # Vérification que les indices sont valides (référencent les points originaux)
+    for t in result:
+        assert len(t) == 3
+        assert all(0 <= idx < len(points) for idx in t)
