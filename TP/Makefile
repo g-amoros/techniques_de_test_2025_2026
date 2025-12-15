@@ -5,19 +5,19 @@ install:
 
 # Lance tous les tests (unitaires + integration + perf)
 test:
-	pytest -v
+	PYTHONPATH=. pytest -v
 
 # Lance uniquement les tests unitaires et d'intégration (exclut la perf)
 unit_test:
-	pytest -v -m "not performance"
+	PYTHONPATH=. pytest -v -m "not performance"
 
 # Lance uniquement les tests de performance
 perf_test:
-	pytest -v -m "performance"
+	PYTHONPATH=. pytest -v -m "performance"
 
 # Génère le rapport de couverture (sur les tests unitaires/intégration)
 coverage:
-	coverage run -m pytest -m "not performance"
+	PYTHONPATH=. coverage run -m pytest -m "not performance"
 	coverage report -m
 	coverage html
 
@@ -31,7 +31,7 @@ doc:
 
 # Lance le serveur de développement
 run:
-	flask --app src.app run --debug --port 5000
+	FLASK_APP=src.app flask run --debug --port 5000
 
 clean:
 	rm -rf .pytest_cache
